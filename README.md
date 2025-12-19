@@ -1,4 +1,4 @@
-# Simulador GNV (nuevo)
+# Simulador GNV - 2025.12.18
 
 Simulador web en **React + Vite** que replica la lógica del Excel (lookup TEA, cálculo de cuota, factor y alerta).
 
