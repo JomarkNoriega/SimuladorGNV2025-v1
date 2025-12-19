@@ -164,13 +164,30 @@ export default function App() {
   const [activity, setActivity] = useState("Formal/APP");
   const [plazo, setPlazo] = useState(24);
   const [solicitado, setSolicitado] = useState(2000);
-  const [seguroObliga, setSeguroObliga] = useState("Vida Integral");
-  const [seguroVol, setSeguroVol] = useState("Ruta");
+
+  // Seguros quedan fijos (ocultos en UI), pero se mantienen en la lógica (según Excel)
+  const seguroObliga = "Vida Integral";
+  const seguroVol = "Ruta";
+
+  const limits = useMemo(() => {
+    const montoMin = 1000;
+    const montoMax = activity === "Informal" ? 3000 : 5000;
+    const plazoMin = 12;
+    const plazoMax = activity === "Informal" ? 24 : 30;
+    return { montoMin, montoMax, plazoMin, plazoMax };
+  }, [activity]);
+
+  const clamp = (v, min, max) => Math.min(Math.max(v, min), max);
+
+  // Ajuste automático si el usuario cambia actividad y queda fuera de límites
+  React.useEffect(() => {
+    setSolicitado((prev) => clamp(prev, limits.montoMin, limits.montoMax));
+    setPlazo((prev) => clamp(prev, limits.plazoMin, limits.plazoMax));
+  }, [limits.montoMin, limits.montoMax, limits.plazoMin, limits.plazoMax]);
 
   const calc = useMemo(() => {
     // Seguro obligatorio (Excel: Vida Integral = 10% * solicitado)
-    const costoObliga =
-      seguroObliga === "Vida Integral" ? 0.1 * solicitado : 0;
+    const costoObliga = seguroObliga === "Vida Integral" ? 0.1 * solicitado : 0;
 
     // Seguro voluntario (Excel):
     // Solidario = plazo * 8 ; Ruta = 60 ; Solidario+Ruta = plazo*8 + 60 ; Ninguno = 0
@@ -184,7 +201,6 @@ export default function App() {
 
     const tea = teaFromTotal(total);
     const tasaMensual = monthlyRateFromTEA(tea);
-
     const cuota = pmt(tasaMensual, plazo, total);
 
     const factor = factorFromCuota(activity, cuota);
@@ -200,34 +216,32 @@ export default function App() {
       factor,
       alerta,
     };
-  }, [activity, plazo, solicitado, seguroObliga, seguroVol]);
+  }, [activity, plazo, solicitado]);
 
   const chartData = useMemo(() => {
     // Curva: cuota vs solicitado (manteniendo plazo y seguros)
     const points = [];
-    const start = 1000;
-    const end = 6000;
+    const start = limits.montoMin;
+    const end = limits.montoMax;
     const step = 250;
 
     for (let s = start; s <= end; s += step) {
-      const costoObliga = seguroObliga === "Vida Integral" ? 0.1 * s : 0;
-      let costoVol = 0;
-      if (seguroVol === "Solidario") costoVol = plazo * 8;
-      else if (seguroVol === "Ruta") costoVol = 60;
-      else if (seguroVol === "Solidario + Ruta") costoVol = plazo * 8 + 60;
-
+      const costoObliga = 0.1 * s; // Vida Integral fijo
+      const costoVol = 60; // Ruta fijo
       const total = s + costoObliga + costoVol;
+
       const tea = teaFromTotal(total);
       const tasaMensual = monthlyRateFromTEA(tea);
       const cuota = pmt(tasaMensual, plazo, total);
+
       points.push({ solicitado: s, cuota });
     }
     return points;
-  }, [plazo, seguroObliga, seguroVol]);
+  }, [plazo, limits.montoMin, limits.montoMax]);
 
   return (
     <div style={{ fontFamily: "system-ui", padding: 20, maxWidth: 1100, margin: "0 auto" }}>
-      <h2>Simulador GNV (nuevo) — basado en Excel</h2>
+      <h2>Simulador GNV - 2025.12.18</h2>
 
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginTop: 12 }}>
         <div style={{ border: "1px solid #ddd", borderRadius: 12, padding: 16 }}>
@@ -235,7 +249,11 @@ export default function App() {
 
           <label style={{ display: "block", marginTop: 10 }}>
             Actividad
-            <select value={activity} onChange={(e) => setActivity(e.target.value)} style={{ width: "100%", padding: 8, marginTop: 6 }}>
+            <select
+              value={activity}
+              onChange={(e) => setActivity(e.target.value)}
+              style={{ width: "100%", padding: 8, marginTop: 6 }}
+            >
               <option value="Formal/APP">Formal/APP</option>
               <option value="Informal">Informal</option>
             </select>
@@ -245,48 +263,49 @@ export default function App() {
             Plazo (meses)
             <input
               type="number"
-              min={3}
-              max={60}
+              min={limits.plazoMin}
+              max={limits.plazoMax}
               value={plazo}
-              onChange={(e) => setPlazo(Number(e.target.value))}
+              onChange={(e) =>
+                setPlazo(clamp(Number(e.target.value), limits.plazoMin, limits.plazoMax))
+              }
               style={{ width: "100%", padding: 8, marginTop: 6 }}
             />
+            <div style={{ fontSize: 12, color: "#555", marginTop: 4 }}>
+              Mín: {limits.plazoMin} | Máx: {limits.plazoMax}
+            </div>
           </label>
 
           <label style={{ display: "block", marginTop: 10 }}>
             Monto solicitado (S/)
             <input
               type="number"
-              min={500}
-              max={6000}
+              min={limits.montoMin}
+              max={limits.montoMax}
               step={50}
               value={solicitado}
-              onChange={(e) => setSolicitado(Number(e.target.value))}
+              onChange={(e) =>
+                setSolicitado(clamp(Number(e.target.value), limits.montoMin, limits.montoMax))
+              }
               style={{ width: "100%", padding: 8, marginTop: 6 }}
             />
-          </label>
-
-          <label style={{ display: "block", marginTop: 10 }}>
-            Seguro obligatorio
-            <select value={seguroObliga} onChange={(e) => setSeguroObliga(e.target.value)} style={{ width: "100%", padding: 8, marginTop: 6 }}>
-              <option value="Vida Integral">Vida Integral</option>
-              <option value="Ninguno">Ninguno</option>
-            </select>
-          </label>
-
-          <label style={{ display: "block", marginTop: 10 }}>
-            Seguro voluntario
-            <select value={seguroVol} onChange={(e) => setSeguroVol(e.target.value)} style={{ width: "100%", padding: 8, marginTop: 6 }}>
-              <option value="Solidario">Solidario</option>
-              <option value="Ruta">Ruta</option>
-              <option value="Solidario + Ruta">Solidario + Ruta</option>
-              <option value="Ninguno">Ninguno</option>
-            </select>
+            <div style={{ fontSize: 12, color: "#555", marginTop: 4 }}>
+              Mín: {limits.montoMin} | Máx: {limits.montoMax}
+            </div>
           </label>
 
           {calc.alerta && (
-            <div style={{ marginTop: 12, padding: 12, borderRadius: 12, border: "1px solid #f0c36d" }}>
-              <b>Alerta:</b> Factor {formatPct(calc.factor)} (&gt;{formatPct(0.85)}). No cumple factor (según regla del Excel).
+            <div
+              style={{
+                marginTop: 12,
+                padding: 12,
+                borderRadius: 12,
+                border: "1px solid #cc0000",
+                color: "#cc0000",
+                fontWeight: 600,
+              }}
+            >
+              Alerta: Factor {formatPct(calc.factor)} (&gt;{formatPct(0.85)}). No cumple factor
             </div>
           )}
         </div>
@@ -295,26 +314,6 @@ export default function App() {
           <h3>Resultados</h3>
 
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginTop: 10 }}>
-            <div>
-              <div>Seguro obligatorio</div>
-              <b>{formatPEN(calc.costoObliga)}</b>
-            </div>
-            <div>
-              <div>Seguro voluntario</div>
-              <b>{formatPEN(calc.costoVol)}</b>
-            </div>
-            <div>
-              <div>Total financiado</div>
-              <b>{formatPEN(calc.total)}</b>
-            </div>
-            <div>
-              <div>TEA (lookup)</div>
-              <b>{calc.tea.toFixed(2)}%</b>
-            </div>
-            <div>
-              <div>Tasa mensual</div>
-              <b>{(calc.tasaMensual * 100).toFixed(4)}%</b>
-            </div>
             <div>
               <div>Cuota</div>
               <b>{formatPEN(calc.cuota)}</b>
@@ -343,7 +342,7 @@ export default function App() {
       </div>
 
       <div style={{ marginTop: 16, fontSize: 13, color: "#444" }}>
-        Nota: Esta implementación replica la lógica del Excel (VLOOKUP aproximado para TEA y para Factor, PMT mensual, seguros con fórmulas).
+        Nota: Se mantiene la lógica del Excel (cálculo de cuota y factor). Los campos técnicos se ocultan para simplificar la vista.
       </div>
     </div>
   );
