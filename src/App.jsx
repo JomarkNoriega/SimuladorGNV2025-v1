@@ -165,9 +165,9 @@ export default function App() {
   const [plazo, setPlazo] = useState(24);
   const [solicitado, setSolicitado] = useState(2000);
 
-  // Seguros quedan fijos (ocultos en UI), pero se mantienen en la lógica (según Excel)
-  const seguroObliga = "Vida Integral";
-  const seguroVol = "Ruta";
+  // Permitir elegir seguros (pero NO mostrar sus valores resultantes)
+  const [seguroObliga, setSeguroObliga] = useState("Vida Integral");
+  const [seguroVol, setSeguroVol] = useState("Ruta");
 
   const limits = useMemo(() => {
     const montoMin = 1000;
@@ -187,7 +187,8 @@ export default function App() {
 
   const calc = useMemo(() => {
     // Seguro obligatorio (Excel: Vida Integral = 10% * solicitado)
-    const costoObliga = seguroObliga === "Vida Integral" ? 0.1 * solicitado : 0;
+    const costoObliga =
+      seguroObliga === "Vida Integral" ? 0.1 * solicitado : 0;
 
     // Seguro voluntario (Excel):
     // Solidario = plazo * 8 ; Ruta = 60 ; Solidario+Ruta = plazo*8 + 60 ; Ninguno = 0
@@ -207,6 +208,7 @@ export default function App() {
     const alerta = factor > 0.85;
 
     return {
+      // Se mantiene para lógica, pero NO se muestra en UI
       costoObliga,
       costoVol,
       total,
@@ -216,18 +218,24 @@ export default function App() {
       factor,
       alerta,
     };
-  }, [activity, plazo, solicitado]);
+  }, [activity, plazo, solicitado, seguroObliga, seguroVol]);
 
   const chartData = useMemo(() => {
-    // Curva: cuota vs solicitado (manteniendo plazo y seguros)
+    // Curva: cuota vs solicitado (manteniendo plazo y seguros elegidos)
     const points = [];
     const start = limits.montoMin;
     const end = limits.montoMax;
     const step = 250;
 
     for (let s = start; s <= end; s += step) {
-      const costoObliga = 0.1 * s; // Vida Integral fijo
-      const costoVol = 60; // Ruta fijo
+      const costoObliga = seguroObliga === "Vida Integral" ? 0.1 * s : 0;
+
+      let costoVol = 0;
+      if (seguroVol === "Solidario") costoVol = plazo * 8;
+      else if (seguroVol === "Ruta") costoVol = 60;
+      else if (seguroVol === "Solidario + Ruta") costoVol = plazo * 8 + 60;
+      else costoVol = 0;
+
       const total = s + costoObliga + costoVol;
 
       const tea = teaFromTotal(total);
@@ -237,7 +245,7 @@ export default function App() {
       points.push({ solicitado: s, cuota });
     }
     return points;
-  }, [plazo, limits.montoMin, limits.montoMax]);
+  }, [plazo, limits.montoMin, limits.montoMax, seguroObliga, seguroVol]);
 
   return (
     <div style={{ fontFamily: "system-ui", padding: 20, maxWidth: 1100, margin: "0 auto" }}>
@@ -294,6 +302,32 @@ export default function App() {
             </div>
           </label>
 
+          <label style={{ display: "block", marginTop: 10 }}>
+            Seguro obligatorio
+            <select
+              value={seguroObliga}
+              onChange={(e) => setSeguroObliga(e.target.value)}
+              style={{ width: "100%", padding: 8, marginTop: 6 }}
+            >
+              <option value="Vida Integral">Vida Integral</option>
+              <option value="Ninguno">Ninguno</option>
+            </select>
+          </label>
+
+          <label style={{ display: "block", marginTop: 10 }}>
+            Seguro voluntario
+            <select
+              value={seguroVol}
+              onChange={(e) => setSeguroVol(e.target.value)}
+              style={{ width: "100%", padding: 8, marginTop: 6 }}
+            >
+              <option value="Solidario">Solidario</option>
+              <option value="Ruta">Ruta</option>
+              <option value="Solidario + Ruta">Solidario + Ruta</option>
+              <option value="Ninguno">Ninguno</option>
+            </select>
+          </label>
+
           {calc.alerta && (
             <div
               style={{
@@ -342,7 +376,7 @@ export default function App() {
       </div>
 
       <div style={{ marginTop: 16, fontSize: 13, color: "#444" }}>
-        Nota: Se mantiene la lógica del Excel (cálculo de cuota y factor). Los campos técnicos se ocultan para simplificar la vista.
+        Nota: Se mantiene la lógica del Excel (cálculo de cuota y factor). Los valores internos de seguros/TEA/tasa no se muestran.
       </div>
     </div>
   );
