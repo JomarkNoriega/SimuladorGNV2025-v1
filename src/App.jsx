@@ -1,14 +1,4 @@
 import React, { useMemo, useState } from "react";
-import {
-  ResponsiveContainer,
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  Tooltip,
-  CartesianGrid,
-} from "recharts";
-
 // -------------------------------
 // 1) Tablas embebidas (del Excel)
 // -------------------------------
@@ -220,33 +210,6 @@ export default function App() {
     };
   }, [activity, plazo, solicitado, seguroObliga, seguroVol]);
 
-  const chartData = useMemo(() => {
-    // Curva: cuota vs solicitado (manteniendo plazo y seguros elegidos)
-    const points = [];
-    const start = limits.montoMin;
-    const end = limits.montoMax;
-    const step = 250;
-
-    for (let s = start; s <= end; s += step) {
-      const costoObliga = seguroObliga === "Vida Integral" ? 0.1 * s : 0;
-
-      let costoVol = 0;
-      if (seguroVol === "Solidario") costoVol = plazo * 8;
-      else if (seguroVol === "Ruta") costoVol = 60;
-      else if (seguroVol === "Solidario + Ruta") costoVol = plazo * 8 + 60;
-      else costoVol = 0;
-
-      const total = s + costoObliga + costoVol;
-
-      const tea = teaFromTotal(total);
-      const tasaMensual = monthlyRateFromTEA(tea);
-      const cuota = pmt(tasaMensual, plazo, total);
-
-      points.push({ solicitado: s, cuota });
-    }
-    return points;
-  }, [plazo, limits.montoMin, limits.montoMax, seguroObliga, seguroVol]);
-
   return (
     <div style={{ fontFamily: "system-ui", padding: 20, maxWidth: 1100, margin: "0 auto" }}>
       <h2>Simulador GNV - 2025.12.18</h2>
@@ -274,8 +237,9 @@ export default function App() {
               min={limits.plazoMin}
               max={limits.plazoMax}
               value={plazo}
-              onChange={(e) =>
-                setPlazo(clamp(Number(e.target.value), limits.plazoMin, limits.plazoMax))
+              onChange={(e) => setPlazo(Number(e.target.value))}
+              onBlur={() =>
+                setPlazo(clamp(plazo, limits.plazoMin, limits.plazoMax))
               }
               style={{ width: "100%", padding: 8, marginTop: 6 }}
             />
@@ -292,8 +256,9 @@ export default function App() {
               max={limits.montoMax}
               step={50}
               value={solicitado}
-              onChange={(e) =>
-                setSolicitado(clamp(Number(e.target.value), limits.montoMin, limits.montoMax))
+              onChange={(e) => setSolicitado(Number(e.target.value))}
+              onBlur={() =>
+                setSolicitado(clamp(solicitado, limits.montoMin, limits.montoMax))
               }
               style={{ width: "100%", padding: 8, marginTop: 6 }}
             />
@@ -355,21 +320,6 @@ export default function App() {
             <div>
               <div>Factor</div>
               <b>{formatPct(calc.factor)}</b>
-            </div>
-          </div>
-
-          <div style={{ marginTop: 18 }}>
-            <h4 style={{ marginBottom: 8 }}>Curva (Cuota vs Solicitado)</h4>
-            <div style={{ width: "100%", height: 280 }}>
-              <ResponsiveContainer>
-                <LineChart data={chartData}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="solicitado" />
-                  <YAxis />
-                  <Tooltip />
-                  <Line type="monotone" dataKey="cuota" dot={false} />
-                </LineChart>
-              </ResponsiveContainer>
             </div>
           </div>
         </div>
