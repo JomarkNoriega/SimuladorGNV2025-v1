@@ -326,7 +326,7 @@ export default function App() {
       </div>
 
       <div style={{ marginTop: 16, fontSize: 13, color: "#444" }}>
-        Nota: Se mantiene la lógica del Excel (cálculo de cuota y factor). Los valores internos de seguros/TEA/tasa no se muestran.
+        Nota: Actualizado el 2025.12.22.
       </div>
     </div>
   );
