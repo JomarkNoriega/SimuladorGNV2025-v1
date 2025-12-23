@@ -212,7 +212,7 @@ export default function App() {
 
   return (
     <div style={{ fontFamily: "system-ui", padding: 20, maxWidth: 1100, margin: "0 auto" }}>
-      <h2>Simulador GNV - 2025.12.18</h2>
+      <h2>Simulador GNV - 2025.12.22</h2>
 
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginTop: 12 }}>
         <div style={{ border: "1px solid #ddd", borderRadius: 12, padding: 16 }}>
@@ -274,7 +274,7 @@ export default function App() {
               onChange={(e) => setSeguroObliga(e.target.value)}
               style={{ width: "100%", padding: 8, marginTop: 6 }}
             >
-              <option value="Vida Integral">Vida Integral</option>
+              <option value="Vida Integral">Vida Integral o Desgravamen</option>
               <option value="Ninguno">Ninguno</option>
             </select>
           </label>
