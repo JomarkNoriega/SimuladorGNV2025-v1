@@ -1,5 +1,4 @@
 import React, { useMemo, useState } from "react";
-
 // -------------------------------
 // 1) Tablas embebidas (del Excel)
 // -------------------------------
@@ -60,39 +59,91 @@ const TEA_TABLE = [
   { monto: 6000, tea: 92.99 },
 ];
 
-// Factor (% recaudo) aproximado por actividad
-// ✅ Se eliminan los tramos: 90%, 95% y 100%.
-// => El máximo factor disponible queda en 85%.
+// Factor (% recaudo) aproximado por actividad (derivado de AG:AI)
+// En el Excel: dias_laborables = 24
+// Informal: monto_recarga_dia = 20  => AG = 20 * % * 24
+// Formal/APP: monto_recarga_dia = 35 => AG = 35 * % * 24
+// VLOOKUP devuelve la columna % (AI).
+// Factor (% recaudo) aproximado por actividad (según Excel V2)
+// VLOOKUP aproximado usando 'Cuota' como entrada.
+// Nota: el Excel incluye una última fila con texto '>85%' para marcar el umbral de alerta (no es un factor numérico).
 const FACTOR_TABLE = {
   Informal: [
-    { cuotaMin: 0, factor: 0.5 },
-    { cuotaMin: 240, factor: 0.55 },
-    { cuotaMin: 264, factor: 0.6 },
-    { cuotaMin: 288, factor: 0.65 },
-    { cuotaMin: 312, factor: 0.7 },
-    { cuotaMin: 336, factor: 0.75 },
-    { cuotaMin: 360, factor: 0.8 },
-    { cuotaMin: 384, factor: 0.85 },
-    // ELIMINADOS: 408 (0.90), 432 (0.95), 456 (1.00), 480 (1.00)
-  ],
+  {
+    "cuotaMin": 0.0,
+    "factor": 0.5
+  },
+  {
+    "cuotaMin": 200.0,
+    "factor": 0.55
+  },
+  {
+    "cuotaMin": 220.0,
+    "factor": 0.6
+  },
+  {
+    "cuotaMin": 240.0,
+    "factor": 0.65
+  },
+  {
+    "cuotaMin": 260.0,
+    "factor": 0.7
+  },
+  {
+    "cuotaMin": 280.0,
+    "factor": 0.75
+  },
+  {
+    "cuotaMin": 300.0,
+    "factor": 0.8
+  },
+  {
+    "cuotaMin": 320.0,
+    "factor": 0.85
+  }
+],
   "Formal/APP": [
-    { cuotaMin: 0, factor: 0.5 },
-    { cuotaMin: 420, factor: 0.55 },
-    { cuotaMin: 462, factor: 0.6 },
-    { cuotaMin: 504, factor: 0.65 },
-    { cuotaMin: 546, factor: 0.7 },
-    { cuotaMin: 588, factor: 0.75 },
-    { cuotaMin: 630, factor: 0.8 },
-    { cuotaMin: 672, factor: 0.85 },
-    // ELIMINADOS: 714 (0.90), 756 (0.95), 798 (1.00), 840 (1.00)
-  ],
+  {
+    "cuotaMin": 0.0,
+    "factor": 0.5
+  },
+  {
+    "cuotaMin": 350.0,
+    "factor": 0.55
+  },
+  {
+    "cuotaMin": 385.0,
+    "factor": 0.6
+  },
+  {
+    "cuotaMin": 420.0,
+    "factor": 0.65
+  },
+  {
+    "cuotaMin": 455.0,
+    "factor": 0.7
+  },
+  {
+    "cuotaMin": 490.0,
+    "factor": 0.75
+  },
+  {
+    "cuotaMin": 525.0,
+    "factor": 0.8
+  },
+  {
+    "cuotaMin": 560.0,
+    "factor": 0.85
+  }
+],
 };
 
-// Umbrales donde antes empezaban los tramos eliminados (para disparar alerta)
 const ALERTA_CUOTA_MIN = {
-  Informal: 408,
-  "Formal/APP": 714,
+  Informal: 340,
+  "Formal/APP": 595,
 };
+
+
 
 // -------------------------------
 // 2) Utilidades (VLOOKUP/PMT)
@@ -176,7 +227,8 @@ export default function App() {
 
   const calc = useMemo(() => {
     // Seguro obligatorio (Excel: Vida Integral = 10% * solicitado)
-    const costoObliga = seguroObliga === "Vida Integral" ? 0.1 * solicitado : 0;
+    const costoObliga =
+      seguroObliga === "Vida Integral" ? 0.1 * solicitado : 0;
 
     // Seguro voluntario (Excel):
     // Solidario = plazo * 8 ; Ruta = 60 ; Solidario+Ruta = plazo*8 + 60 ; Ninguno = 0
@@ -194,26 +246,25 @@ export default function App() {
 
     const factor = factorFromCuota(activity, cuota);
 
-    // ✅ Nueva regla: alertar si la cuota cae en los rangos eliminados
+    // Alerta si la cuota cae en el tramo eliminado del Excel (fila '>85%')
     const umbral = ALERTA_CUOTA_MIN[activity] ?? ALERTA_CUOTA_MIN["Informal"];
     const alerta = cuota >= umbral;
-
-    return {
-      cuota,
-      factor,
-      alerta,
-      // valores internos (no visibles)
+return {
+      // Se mantiene para lógica, pero NO se muestra en UI
       costoObliga,
       costoVol,
       total,
       tea,
       tasaMensual,
+      cuota,
+      factor,
+      alerta,
     };
   }, [activity, plazo, solicitado, seguroObliga, seguroVol]);
 
   return (
     <div style={{ fontFamily: "system-ui", padding: 20, maxWidth: 1100, margin: "0 auto" }}>
-      <h2>Simulador GNV - 2026.01.12</h2>
+      <h2>Simulador GNV - 2026.01.12.v02</h2>
 
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginTop: 12 }}>
         <div style={{ border: "1px solid #ddd", borderRadius: 12, padding: 16 }}>
@@ -239,7 +290,9 @@ export default function App() {
               max={limits.plazoMax}
               value={plazo}
               onChange={(e) => setPlazo(Number(e.target.value))}
-              onBlur={() => setPlazo(clamp(plazo, limits.plazoMin, limits.plazoMax))}
+              onBlur={() =>
+                setPlazo(clamp(plazo, limits.plazoMin, limits.plazoMax))
+              }
               style={{ width: "100%", padding: 8, marginTop: 6 }}
             />
             <div style={{ fontSize: 12, color: "#555", marginTop: 4 }}>
@@ -256,7 +309,9 @@ export default function App() {
               step={50}
               value={solicitado}
               onChange={(e) => setSolicitado(Number(e.target.value))}
-              onBlur={() => setSolicitado(clamp(solicitado, limits.montoMin, limits.montoMax))}
+              onBlur={() =>
+                setSolicitado(clamp(solicitado, limits.montoMin, limits.montoMax))
+              }
               style={{ width: "100%", padding: 8, marginTop: 6 }}
             />
             <div style={{ fontSize: 12, color: "#555", marginTop: 4 }}>
@@ -301,7 +356,7 @@ export default function App() {
                 fontWeight: 600,
               }}
             >
-              Alerta: La cuota supera el rango permitido para {activity}.
+              Alerta: Factor {formatPct(calc.factor)} (&gt;{formatPct(0.85)}). No cumple factor
             </div>
           )}
         </div>
@@ -323,7 +378,7 @@ export default function App() {
       </div>
 
       <div style={{ marginTop: 16, fontSize: 13, color: "#444" }}>
-        Nota: Se mantiene la lógica del Excel (cálculo de cuota y factor). Los valores internos de seguros/TEA/tasa no se muestran.
+        Nota: QAPAQ SA.
       </div>
     </div>
   );
