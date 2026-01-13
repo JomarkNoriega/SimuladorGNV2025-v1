@@ -356,7 +356,7 @@ return {
                 fontWeight: 600,
               }}
             >
-              Alerta: Factor {formatPct(calc.factor)} (&gt;{formatPct(0.85)}). No cumple factor
+              Alerta: Factor {formatPct(calc.factor)} (&gt;{formatPct(0.85)}). No cumple factor. Debe volver a Generar.
             </div>
           )}
         </div>
@@ -378,7 +378,7 @@ return {
       </div>
 
       <div style={{ marginTop: 16, fontSize: 13, color: "#444" }}>
-        Nota: QAPAQ SA.
+        (c) QAPAQ S.A.
       </div>
     </div>
   );
