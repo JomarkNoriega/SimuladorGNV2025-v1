@@ -264,7 +264,7 @@ return {
 
   return (
     <div style={{ fontFamily: "system-ui", padding: 20, maxWidth: 1100, margin: "0 auto" }}>
-      <h2>Simulador GNV - 2026.01.12.v02</h2>
+      <h2>Simulador GNV - 2025.12.18</h2>
 
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginTop: 12 }}>
         <div style={{ border: "1px solid #ddd", borderRadius: 12, padding: 16 }}>
@@ -345,20 +345,7 @@ return {
             </select>
           </label>
 
-          {calc.alerta && (
-            <div
-              style={{
-                marginTop: 12,
-                padding: 12,
-                borderRadius: 12,
-                border: "1px solid #cc0000",
-                color: "#cc0000",
-                fontWeight: 600,
-              }}
-            >
-              Alerta: Factor {formatPct(calc.factor)} (&gt;{formatPct(0.85)}). No cumple factor. Debe volver a Generar.
-            </div>
-          )}
+          
         </div>
 
         <div style={{ border: "1px solid #ddd", borderRadius: 12, padding: 16 }}>
@@ -374,11 +361,27 @@ return {
               <b>{formatPct(calc.factor)}</b>
             </div>
           </div>
+
+          {calc.alerta && (
+            <div
+              style={{
+                marginTop: 16,
+                padding: 12,
+                borderRadius: 12,
+                border: "1px solid #cc0000",
+                color: "#cc0000",
+                fontWeight: 600,
+              }}
+            >
+              Alerta: La cuota supera el rango permitido para {activity}.
+            </div>
+          )}
+
         </div>
       </div>
 
       <div style={{ marginTop: 16, fontSize: 13, color: "#444" }}>
-        (c) QAPAQ S.A.
+        Nota: Se mantiene la lógica del Excel (cálculo de cuota y factor). Los valores internos de seguros/TEA/tasa no se muestran.
       </div>
     </div>
   );
