@@ -381,7 +381,7 @@ return {
       </div>
 
       <div style={{ marginTop: 16, fontSize: 13, color: "#444" }}>
-        Nota: Se mantiene la lógica del Excel (cálculo de cuota y factor). Los valores internos de seguros/TEA/tasa no se muestran.
+        (c) QAPAQ S.A.
       </div>
     </div>
   );
