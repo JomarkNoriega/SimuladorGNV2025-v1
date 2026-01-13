@@ -264,7 +264,7 @@ return {
 
   return (
     <div style={{ fontFamily: "system-ui", padding: 20, maxWidth: 1100, margin: "0 auto" }}>
-      <h2>Simulador GNV - 2025.12.18</h2>
+      <h2>Simulador GNV - 2026.01.12.v3</h2>
 
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginTop: 12 }}>
         <div style={{ border: "1px solid #ddd", borderRadius: 12, padding: 16 }}>
@@ -373,7 +373,7 @@ return {
                 fontWeight: 600,
               }}
             >
-              Alerta: La cuota supera el rango permitido para {activity}.
+              Alerta: La cuota supera el rango permitido para {activity}. DEBE VOLVER A GENERAR.
             </div>
           )}
 
