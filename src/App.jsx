@@ -373,7 +373,7 @@ return {
                 fontWeight: 600,
               }}
             >
-              Alerta: La cuota supera el rango permitido para {activity}. DEBE VOLVER A GENERAR.
+              Alerta: La cuota supera el rango permitido para {activity}. DEBE VOLVER A GENERAR LA SIMULACION.
             </div>
           )}
 
