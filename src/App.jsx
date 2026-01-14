@@ -326,7 +326,7 @@ return {
               onChange={(e) => setSeguroObliga(e.target.value)}
               style={{ width: "100%", padding: 8, marginTop: 6 }}
             >
-              <option value="Vida Integral">Vida Integral</option>
+              <option value="Vida Integral">Vida integral y/o seguro de Desgravamen</option>
               <option value="Ninguno">Ninguno</option>
             </select>
           </label>
