@@ -64,84 +64,88 @@ const TEA_TABLE = [
 // Informal: monto_recarga_dia = 20  => AG = 20 * % * 24
 // Formal/APP: monto_recarga_dia = 35 => AG = 35 * % * 24
 // VLOOKUP devuelve la columna % (AI).
-// Factor (% recaudo) aproximado por actividad (según Excel V2)
+// Factor (% recaudo) aproximado por actividad (según hoja "Simulador Modificado" (V3))
 // VLOOKUP aproximado usando 'Cuota' como entrada.
 // Nota: el Excel incluye una última fila con texto '>85%' para marcar el umbral de alerta (no es un factor numérico).
 const FACTOR_TABLE = {
-  Informal: [
-  {
-    "cuotaMin": 0.0,
-    "factor": 0.5
-  },
-  {
-    "cuotaMin": 200.0,
-    "factor": 0.55
-  },
-  {
-    "cuotaMin": 220.0,
-    "factor": 0.6
-  },
-  {
-    "cuotaMin": 240.0,
-    "factor": 0.65
-  },
-  {
-    "cuotaMin": 260.0,
-    "factor": 0.7
-  },
-  {
-    "cuotaMin": 280.0,
-    "factor": 0.75
-  },
-  {
-    "cuotaMin": 300.0,
-    "factor": 0.8
-  },
-  {
-    "cuotaMin": 320.0,
-    "factor": 0.85
-  }
-],
+  "Informal": [
+    {
+      "cuotaMin": 0.0,
+      "factor": 0.5
+    },
+    {
+      "cuotaMin": 160.0,
+      "factor": 0.55
+    },
+    {
+      "cuotaMin": 176.0,
+      "factor": 0.6
+    },
+    {
+      "cuotaMin": 192.0,
+      "factor": 0.65
+    },
+    {
+      "cuotaMin": 208.0,
+      "factor": 0.7
+    },
+    {
+      "cuotaMin": 224.0,
+      "factor": 0.75
+    },
+    {
+      "cuotaMin": 240.0,
+      "factor": 0.8
+    },
+    {
+      "cuotaMin": 256.0,
+      "factor": 0.85
+    },
+    {
+      "cuotaMin": 272.0,
+      "factor": ">85%"
+    }
+  ],
   "Formal/APP": [
-  {
-    "cuotaMin": 0.0,
-    "factor": 0.5
-  },
-  {
-    "cuotaMin": 350.0,
-    "factor": 0.55
-  },
-  {
-    "cuotaMin": 385.0,
-    "factor": 0.6
-  },
-  {
-    "cuotaMin": 420.0,
-    "factor": 0.65
-  },
-  {
-    "cuotaMin": 455.0,
-    "factor": 0.7
-  },
-  {
-    "cuotaMin": 490.0,
-    "factor": 0.75
-  },
-  {
-    "cuotaMin": 525.0,
-    "factor": 0.8
-  },
-  {
-    "cuotaMin": 560.0,
-    "factor": 0.85
-  }
-],
+    {
+      "cuotaMin": 0.0,
+      "factor": 0.5
+    },
+    {
+      "cuotaMin": 280.0,
+      "factor": 0.55
+    },
+    {
+      "cuotaMin": 308.0,
+      "factor": 0.6
+    },
+    {
+      "cuotaMin": 336.0,
+      "factor": 0.65
+    },
+    {
+      "cuotaMin": 364.0,
+      "factor": 0.7
+    },
+    {
+      "cuotaMin": 392.0,
+      "factor": 0.75
+    },
+    {
+      "cuotaMin": 420.0,
+      "factor": 0.8
+    },
+    {
+      "cuotaMin": 448.0,
+      "factor": 0.85
+    },
+    {
+      "cuotaMin": 476.0,
+      "factor": ">85%"
+    }
+  ]
 };
 
-const ALERTA_CUOTA_MIN = {
-  Informal: 340,
-  "Formal/APP": 595,
-};
 
 
 
@@ -193,6 +197,7 @@ function formatPEN(x) {
 }
 
 function formatPct(x) {
+  if (typeof x === "string") return x;
   if (!isFinite(x)) return "—";
   return `${(x * 100).toFixed(2)}%`;
 }
@@ -246,10 +251,10 @@ export default function App() {
 
     const factor = factorFromCuota(activity, cuota);
 
-    // Alerta si la cuota cae en el tramo eliminado del Excel (fila '>85%')
-    const umbral = ALERTA_CUOTA_MIN[activity] ?? ALERTA_CUOTA_MIN["Informal"];
-    const alerta = cuota >= umbral;
-return {
+    // Alerta: cuando el Excel devuelve ">85%"
+    const alerta = factor === ">85%";
+
+    return {
       // Se mantiene para lógica, pero NO se muestra en UI
       costoObliga,
       costoVol,
@@ -264,7 +269,7 @@ return {
 
   return (
     <div style={{ fontFamily: "system-ui", padding: 20, maxWidth: 1100, margin: "0 auto" }}>
-      <h2>Simulador GNV - 2026.01.12.v3</h2>
+      <h2>Simulador GNV - 2026.03.03.v1</h2>
 
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginTop: 12 }}>
         <div style={{ border: "1px solid #ddd", borderRadius: 12, padding: 16 }}>
