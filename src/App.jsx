@@ -636,7 +636,7 @@ export default function App() {
       </div>
 
       <div style={{ marginTop: 16, fontSize: 13, color: "#444" }}>
-        (c) QAPAQ S.A. 2026
+        (c) QAPAQ S.A.
       </div>
     </div>
   );
