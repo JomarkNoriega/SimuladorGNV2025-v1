@@ -1,223 +1,15 @@
 import React, { useMemo, useState } from "react";
 
-// -------------------------------
-// Tablas embebidas (del Excel V4)
-// -------------------------------
+const RECAUDO_STEPS = [0.5, 0.55, 0.6, 0.65, 0.7, 0.75, 0.8, 0.85];
 
-const TEA_TABLE = [
-  {
-    "monto": 1000,
-    "tea": 96.99
-  },
-  {
-    "monto": 1100,
-    "tea": 96.99
-  },
-  {
-    "monto": 1200,
-    "tea": 96.99
-  },
-  {
-    "monto": 1300,
-    "tea": 96.99
-  },
-  {
-    "monto": 1400,
-    "tea": 96.99
-  },
-  {
-    "monto": 1500,
-    "tea": 96.99
-  },
-  {
-    "monto": 1600,
-    "tea": 96.99
-  },
-  {
-    "monto": 1700,
-    "tea": 96.99
-  },
-  {
-    "monto": 1800,
-    "tea": 96.99
-  },
-  {
-    "monto": 1900,
-    "tea": 96.99
-  },
-  {
-    "monto": 2000,
-    "tea": 95.99
-  },
-  {
-    "monto": 2100,
-    "tea": 95.99
-  },
-  {
-    "monto": 2200,
-    "tea": 95.99
-  },
-  {
-    "monto": 2300,
-    "tea": 95.99
-  },
-  {
-    "monto": 2400,
-    "tea": 95.99
-  },
-  {
-    "monto": 2500,
-    "tea": 95.99
-  },
-  {
-    "monto": 2600,
-    "tea": 95.99
-  },
-  {
-    "monto": 2700,
-    "tea": 95.99
-  },
-  {
-    "monto": 2800,
-    "tea": 95.99
-  },
-  {
-    "monto": 2900,
-    "tea": 95.99
-  },
-  {
-    "monto": 3000,
-    "tea": 93.99
-  },
-  {
-    "monto": 3100,
-    "tea": 93.99
-  },
-  {
-    "monto": 3200,
-    "tea": 93.99
-  },
-  {
-    "monto": 3300,
-    "tea": 93.99
-  },
-  {
-    "monto": 3400,
-    "tea": 93.99
-  },
-  {
-    "monto": 3500,
-    "tea": 93.99
-  },
-  {
-    "monto": 3600,
-    "tea": 93.99
-  },
-  {
-    "monto": 3700,
-    "tea": 93.99
-  },
-  {
-    "monto": 3800,
-    "tea": 93.99
-  },
-  {
-    "monto": 3900,
-    "tea": 93.99
-  },
-  {
-    "monto": 4000,
-    "tea": 92.99
-  },
-  {
-    "monto": 4100,
-    "tea": 92.99
-  },
-  {
-    "monto": 4200,
-    "tea": 92.99
-  },
-  {
-    "monto": 4300,
-    "tea": 92.99
-  },
-  {
-    "monto": 4400,
-    "tea": 92.99
-  },
-  {
-    "monto": 4500,
-    "tea": 92.99
-  },
-  {
-    "monto": 4600,
-    "tea": 92.99
-  },
-  {
-    "monto": 4700,
-    "tea": 92.99
-  },
-  {
-    "monto": 4800,
-    "tea": 92.99
-  },
-  {
-    "monto": 4900,
-    "tea": 92.99
-  },
-  {
-    "monto": 5000,
-    "tea": 92.99
-  },
-  {
-    "monto": 5100,
-    "tea": 92.99
-  },
-  {
-    "monto": 5200,
-    "tea": 92.99
-  },
-  {
-    "monto": 5300,
-    "tea": 92.99
-  },
-  {
-    "monto": 5400,
-    "tea": 92.99
-  },
-  {
-    "monto": 5500,
-    "tea": 92.99
-  },
-  {
-    "monto": 5600,
-    "tea": 92.99
-  },
-  {
-    "monto": 5700,
-    "tea": 92.99
-  },
-  {
-    "monto": 5800,
-    "tea": 92.99
-  },
-  {
-    "monto": 5900,
-    "tea": 92.99
-  },
-  {
-    "monto": 6000,
-    "tea": 92.99
-  }
-];
 
-const DIAS_LABORABLES = 26;
 const RECARGA_DIA = {
   "Informal": 16,
   "Formal/APP": 28,
 };
 
-const RECAUDO_STEPS = [0.5, 0.55, 0.6, 0.65, 0.7, 0.75, 0.8, 0.85];
+
+const DIAS_LABORABLES = 26;
 
 // -------------------------------
 // 1) Tablas embebidas (del Excel)
@@ -431,6 +223,7 @@ const TEA_TABLE = [
     "tea": 92.99
   }
 ];
+
 // Factor (% recaudo) aproximado por actividad (derivado de AG:AI)
 // En el Excel: dias_laborables = 24
 // Informal: monto_recarga_dia = 20  => AG = 20 * % * 24
