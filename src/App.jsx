@@ -1,5 +1,85 @@
 import React, { useMemo, useState } from "react";
 
+const FACTOR_TABLES = {
+  "Informal": [
+    {
+      "umbral": 0.0,
+      "factor": 0.5
+    },
+    {
+      "umbral": 208.0,
+      "factor": 0.55
+    },
+    {
+      "umbral": 228.8,
+      "factor": 0.6
+    },
+    {
+      "umbral": 249.6,
+      "factor": 0.65
+    },
+    {
+      "umbral": 270.4,
+      "factor": 0.7
+    },
+    {
+      "umbral": 291.2,
+      "factor": 0.75
+    },
+    {
+      "umbral": 312.0,
+      "factor": 0.8
+    },
+    {
+      "umbral": 332.8,
+      "factor": 0.85
+    },
+    {
+      "umbral": 353.6,
+      "factor": ">85%"
+    }
+  ],
+  "Formal/APP": [
+    {
+      "umbral": 0.0,
+      "factor": 0.5
+    },
+    {
+      "umbral": 364.0,
+      "factor": 0.55
+    },
+    {
+      "umbral": 400.4,
+      "factor": 0.6
+    },
+    {
+      "umbral": 436.8,
+      "factor": 0.65
+    },
+    {
+      "umbral": 473.2,
+      "factor": 0.7
+    },
+    {
+      "umbral": 509.6,
+      "factor": 0.75
+    },
+    {
+      "umbral": 546.0,
+      "factor": 0.8
+    },
+    {
+      "umbral": 582.4,
+      "factor": 0.85
+    },
+    {
+      "umbral": 618.8,
+      "factor": ">85%"
+    }
+  ]
+};
+
+
 const RECAUDO_STEPS = [0.5, 0.55, 0.6, 0.65, 0.7, 0.75, 0.8, 0.85];
 
 
@@ -347,25 +427,14 @@ function pmt(rate, nper, pv) {
 }
 
 function factorFromCuota(activity, cuota) {
-  const recargaDia = RECARGA_DIA[activity] ?? RECARGA_DIA["Informal"];
-  const rows = [];
+  const table = FACTOR_TABLES[activity] ?? FACTOR_TABLES["Informal"];
+  let best = table[0]?.factor;
 
-  // Filas numéricas hasta 85%
-  for (const p of RECAUDO_STEPS) {
-    rows.push({ umbral: recargaDia * p * DIAS_LABORABLES, factor: p });
-  }
-
-  // Fila final ">85%" (Excel repite el umbral del 85% y devuelve texto)
-  rows.push({ umbral: recargaDia * 0.85 * DIAS_LABORABLES, factor: ">85%" });
-
-  rows.sort((a, b) => a.umbral - b.umbral);
-
-  let best = rows[0];
-  for (const r of rows) {
-    if (r.umbral <= cuota) best = r;
+  for (const r of table) {
+    if (r.umbral <= cuota) best = r.factor;
     else break;
   }
-  return best.factor;
+  return best;
 }
 
 function formatPEN(x) {
