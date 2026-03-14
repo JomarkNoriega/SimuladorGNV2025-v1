@@ -1,96 +1,4 @@
 import React, { useMemo, useState } from "react";
-
-const FACTOR_TABLES = {
-  "Informal": [
-    {
-      "umbral": 0.0,
-      "factor": 0.5
-    },
-    {
-      "umbral": 208.0,
-      "factor": 0.55
-    },
-    {
-      "umbral": 228.8,
-      "factor": 0.6
-    },
-    {
-      "umbral": 249.6,
-      "factor": 0.65
-    },
-    {
-      "umbral": 270.4,
-      "factor": 0.7
-    },
-    {
-      "umbral": 291.2,
-      "factor": 0.75
-    },
-    {
-      "umbral": 312.0,
-      "factor": 0.8
-    },
-    {
-      "umbral": 332.8,
-      "factor": 0.85
-    },
-    {
-      "umbral": 353.6,
-      "factor": ">85%"
-    }
-  ],
-  "Formal/APP": [
-    {
-      "umbral": 0.0,
-      "factor": 0.5
-    },
-    {
-      "umbral": 364.0,
-      "factor": 0.55
-    },
-    {
-      "umbral": 400.4,
-      "factor": 0.6
-    },
-    {
-      "umbral": 436.8,
-      "factor": 0.65
-    },
-    {
-      "umbral": 473.2,
-      "factor": 0.7
-    },
-    {
-      "umbral": 509.6,
-      "factor": 0.75
-    },
-    {
-      "umbral": 546.0,
-      "factor": 0.8
-    },
-    {
-      "umbral": 582.4,
-      "factor": 0.85
-    },
-    {
-      "umbral": 618.8,
-      "factor": ">85%"
-    }
-  ]
-};
-
-
-const RECAUDO_STEPS = [0.5, 0.55, 0.6, 0.65, 0.7, 0.75, 0.8, 0.85];
-
-
-const RECARGA_DIA = {
-  "Informal": 16,
-  "Formal/APP": 28,
-};
-
-
-const DIAS_LABORABLES = 26;
-
 // -------------------------------
 // 1) Tablas embebidas (del Excel)
 // -------------------------------
@@ -98,210 +6,57 @@ const DIAS_LABORABLES = 26;
 // Q3:R53  (Monto -> TEA)
 // VLOOKUP aproximado (largest monto <= total)
 const TEA_TABLE = [
-  {
-    "monto": 1000,
-    "tea": 96.99
-  },
-  {
-    "monto": 1100,
-    "tea": 96.99
-  },
-  {
-    "monto": 1200,
-    "tea": 96.99
-  },
-  {
-    "monto": 1300,
-    "tea": 96.99
-  },
-  {
-    "monto": 1400,
-    "tea": 96.99
-  },
-  {
-    "monto": 1500,
-    "tea": 96.99
-  },
-  {
-    "monto": 1600,
-    "tea": 96.99
-  },
-  {
-    "monto": 1700,
-    "tea": 96.99
-  },
-  {
-    "monto": 1800,
-    "tea": 96.99
-  },
-  {
-    "monto": 1900,
-    "tea": 96.99
-  },
-  {
-    "monto": 2000,
-    "tea": 95.99
-  },
-  {
-    "monto": 2100,
-    "tea": 95.99
-  },
-  {
-    "monto": 2200,
-    "tea": 95.99
-  },
-  {
-    "monto": 2300,
-    "tea": 95.99
-  },
-  {
-    "monto": 2400,
-    "tea": 95.99
-  },
-  {
-    "monto": 2500,
-    "tea": 95.99
-  },
-  {
-    "monto": 2600,
-    "tea": 95.99
-  },
-  {
-    "monto": 2700,
-    "tea": 95.99
-  },
-  {
-    "monto": 2800,
-    "tea": 95.99
-  },
-  {
-    "monto": 2900,
-    "tea": 95.99
-  },
-  {
-    "monto": 3000,
-    "tea": 93.99
-  },
-  {
-    "monto": 3100,
-    "tea": 93.99
-  },
-  {
-    "monto": 3200,
-    "tea": 93.99
-  },
-  {
-    "monto": 3300,
-    "tea": 93.99
-  },
-  {
-    "monto": 3400,
-    "tea": 93.99
-  },
-  {
-    "monto": 3500,
-    "tea": 93.99
-  },
-  {
-    "monto": 3600,
-    "tea": 93.99
-  },
-  {
-    "monto": 3700,
-    "tea": 93.99
-  },
-  {
-    "monto": 3800,
-    "tea": 93.99
-  },
-  {
-    "monto": 3900,
-    "tea": 93.99
-  },
-  {
-    "monto": 4000,
-    "tea": 92.99
-  },
-  {
-    "monto": 4100,
-    "tea": 92.99
-  },
-  {
-    "monto": 4200,
-    "tea": 92.99
-  },
-  {
-    "monto": 4300,
-    "tea": 92.99
-  },
-  {
-    "monto": 4400,
-    "tea": 92.99
-  },
-  {
-    "monto": 4500,
-    "tea": 92.99
-  },
-  {
-    "monto": 4600,
-    "tea": 92.99
-  },
-  {
-    "monto": 4700,
-    "tea": 92.99
-  },
-  {
-    "monto": 4800,
-    "tea": 92.99
-  },
-  {
-    "monto": 4900,
-    "tea": 92.99
-  },
-  {
-    "monto": 5000,
-    "tea": 92.99
-  },
-  {
-    "monto": 5100,
-    "tea": 92.99
-  },
-  {
-    "monto": 5200,
-    "tea": 92.99
-  },
-  {
-    "monto": 5300,
-    "tea": 92.99
-  },
-  {
-    "monto": 5400,
-    "tea": 92.99
-  },
-  {
-    "monto": 5500,
-    "tea": 92.99
-  },
-  {
-    "monto": 5600,
-    "tea": 92.99
-  },
-  {
-    "monto": 5700,
-    "tea": 92.99
-  },
-  {
-    "monto": 5800,
-    "tea": 92.99
-  },
-  {
-    "monto": 5900,
-    "tea": 92.99
-  },
-  {
-    "monto": 6000,
-    "tea": 92.99
-  }
+  { monto: 1000, tea: 96.99 },
+  { monto: 1100, tea: 96.99 },
+  { monto: 1200, tea: 96.99 },
+  { monto: 1300, tea: 96.99 },
+  { monto: 1400, tea: 96.99 },
+  { monto: 1500, tea: 96.99 },
+  { monto: 1600, tea: 96.99 },
+  { monto: 1700, tea: 96.99 },
+  { monto: 1800, tea: 96.99 },
+  { monto: 1900, tea: 96.99 },
+  { monto: 2000, tea: 95.99 },
+  { monto: 2100, tea: 95.99 },
+  { monto: 2200, tea: 95.99 },
+  { monto: 2300, tea: 95.99 },
+  { monto: 2400, tea: 95.99 },
+  { monto: 2500, tea: 95.99 },
+  { monto: 2600, tea: 95.99 },
+  { monto: 2700, tea: 95.99 },
+  { monto: 2800, tea: 95.99 },
+  { monto: 2900, tea: 95.99 },
+  { monto: 3000, tea: 95.99 },
+  { monto: 3100, tea: 94.99 },
+  { monto: 3200, tea: 94.99 },
+  { monto: 3300, tea: 94.99 },
+  { monto: 3400, tea: 94.99 },
+  { monto: 3500, tea: 94.99 },
+  { monto: 3600, tea: 94.99 },
+  { monto: 3700, tea: 94.99 },
+  { monto: 3800, tea: 94.99 },
+  { monto: 3900, tea: 94.99 },
+  { monto: 4000, tea: 94.99 },
+  { monto: 4100, tea: 93.99 },
+  { monto: 4200, tea: 93.99 },
+  { monto: 4300, tea: 93.99 },
+  { monto: 4400, tea: 93.99 },
+  { monto: 4500, tea: 93.99 },
+  { monto: 4600, tea: 93.99 },
+  { monto: 4700, tea: 93.99 },
+  { monto: 4800, tea: 93.99 },
+  { monto: 4900, tea: 93.99 },
+  { monto: 5000, tea: 93.99 },
+  { monto: 5100, tea: 92.99 },
+  { monto: 5200, tea: 92.99 },
+  { monto: 5300, tea: 92.99 },
+  { monto: 5400, tea: 92.99 },
+  { monto: 5500, tea: 92.99 },
+  { monto: 5600, tea: 92.99 },
+  { monto: 5700, tea: 92.99 },
+  { monto: 5800, tea: 92.99 },
+  { monto: 5900, tea: 92.99 },
+  { monto: 6000, tea: 92.99 },
 ];
 
 // Factor (% recaudo) aproximado por actividad (derivado de AG:AI)
@@ -309,88 +64,84 @@ const TEA_TABLE = [
 // Informal: monto_recarga_dia = 20  => AG = 20 * % * 24
 // Formal/APP: monto_recarga_dia = 35 => AG = 35 * % * 24
 // VLOOKUP devuelve la columna % (AI).
-// Factor (% recaudo) aproximado por actividad (según hoja "Simulador Modificado" (V3))
+// Factor (% recaudo) aproximado por actividad (según Excel V2)
 // VLOOKUP aproximado usando 'Cuota' como entrada.
 // Nota: el Excel incluye una última fila con texto '>85%' para marcar el umbral de alerta (no es un factor numérico).
 const FACTOR_TABLE = {
-  "Informal": [
-    {
-      "cuotaMin": 0.0,
-      "factor": 0.5
-    },
-    {
-      "cuotaMin": 160.0,
-      "factor": 0.55
-    },
-    {
-      "cuotaMin": 176.0,
-      "factor": 0.6
-    },
-    {
-      "cuotaMin": 192.0,
-      "factor": 0.65
-    },
-    {
-      "cuotaMin": 208.0,
-      "factor": 0.7
-    },
-    {
-      "cuotaMin": 224.0,
-      "factor": 0.75
-    },
-    {
-      "cuotaMin": 240.0,
-      "factor": 0.8
-    },
-    {
-      "cuotaMin": 256.0,
-      "factor": 0.85
-    },
-    {
-      "cuotaMin": 272.0,
-      "factor": ">85%"
-    }
-  ],
+  Informal: [
+  {
+    "cuotaMin": 0.0,
+    "factor": 0.5
+  },
+  {
+    "cuotaMin": 200.0,
+    "factor": 0.55
+  },
+  {
+    "cuotaMin": 220.0,
+    "factor": 0.6
+  },
+  {
+    "cuotaMin": 240.0,
+    "factor": 0.65
+  },
+  {
+    "cuotaMin": 260.0,
+    "factor": 0.7
+  },
+  {
+    "cuotaMin": 280.0,
+    "factor": 0.75
+  },
+  {
+    "cuotaMin": 300.0,
+    "factor": 0.8
+  },
+  {
+    "cuotaMin": 320.0,
+    "factor": 0.85
+  }
+],
   "Formal/APP": [
-    {
-      "cuotaMin": 0.0,
-      "factor": 0.5
-    },
-    {
-      "cuotaMin": 280.0,
-      "factor": 0.55
-    },
-    {
-      "cuotaMin": 308.0,
-      "factor": 0.6
-    },
-    {
-      "cuotaMin": 336.0,
-      "factor": 0.65
-    },
-    {
-      "cuotaMin": 364.0,
-      "factor": 0.7
-    },
-    {
-      "cuotaMin": 392.0,
-      "factor": 0.75
-    },
-    {
-      "cuotaMin": 420.0,
-      "factor": 0.8
-    },
-    {
-      "cuotaMin": 448.0,
-      "factor": 0.85
-    },
-    {
-      "cuotaMin": 476.0,
-      "factor": ">85%"
-    }
-  ]
+  {
+    "cuotaMin": 0.0,
+    "factor": 0.5
+  },
+  {
+    "cuotaMin": 350.0,
+    "factor": 0.55
+  },
+  {
+    "cuotaMin": 385.0,
+    "factor": 0.6
+  },
+  {
+    "cuotaMin": 420.0,
+    "factor": 0.65
+  },
+  {
+    "cuotaMin": 455.0,
+    "factor": 0.7
+  },
+  {
+    "cuotaMin": 490.0,
+    "factor": 0.75
+  },
+  {
+    "cuotaMin": 525.0,
+    "factor": 0.8
+  },
+  {
+    "cuotaMin": 560.0,
+    "factor": 0.85
+  }
+],
 };
 
+const ALERTA_CUOTA_MIN = {
+  Informal: 340,
+  "Formal/APP": 595,
+};
 
 
 
@@ -427,14 +178,9 @@ function pmt(rate, nper, pv) {
 }
 
 function factorFromCuota(activity, cuota) {
-  const table = FACTOR_TABLES[activity] ?? FACTOR_TABLES["Informal"];
-  let best = table[0]?.factor;
-
-  for (const r of table) {
-    if (r.umbral <= cuota) best = r.factor;
-    else break;
-  }
-  return best;
+  const table = FACTOR_TABLE[activity] ?? FACTOR_TABLE["Informal"];
+  const row = vlookupApprox(cuota, table, "cuotaMin");
+  return row.factor;
 }
 
 function formatPEN(x) {
@@ -447,7 +193,6 @@ function formatPEN(x) {
 }
 
 function formatPct(x) {
-  if (typeof x === "string") return x;
   if (!isFinite(x)) return "—";
   return `${(x * 100).toFixed(2)}%`;
 }
@@ -501,10 +246,10 @@ export default function App() {
 
     const factor = factorFromCuota(activity, cuota);
 
-    // Alerta: cuando el Excel devuelve ">85%"
-    const alerta = factor === ">85%";
-
-    return {
+    // Alerta si la cuota cae en el tramo eliminado del Excel (fila '>85%')
+    const umbral = ALERTA_CUOTA_MIN[activity] ?? ALERTA_CUOTA_MIN["Informal"];
+    const alerta = cuota >= umbral;
+return {
       // Se mantiene para lógica, pero NO se muestra en UI
       costoObliga,
       costoVol,
@@ -519,7 +264,7 @@ export default function App() {
 
   return (
     <div style={{ fontFamily: "system-ui", padding: 20, maxWidth: 1100, margin: "0 auto" }}>
-      <h2>Simulador GNV - 2026.03.03.v1</h2>
+      <h2>Simulador GNV - 2026.01.12.v3</h2>
 
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginTop: 12 }}>
         <div style={{ border: "1px solid #ddd", borderRadius: 12, padding: 16 }}>
